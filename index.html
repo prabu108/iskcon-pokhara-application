@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Krishna Janmashtami 2026 — ISKCON Pokhara Event Manager</title>
+<meta name="description" content="Event Management Dashboard for Krishna Janmashtami 2026 — ISKCON Pokhara"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* =========================================================== */
+/* ROOT & RESET */
+/* =========================================================== */
+:root{
+  --indigo:#4f46e5;--indigo-dark:#3730a3;--indigo-light:#eef2ff;
+  --pink:#ec4899;--amber:#d97706;--green:#059669;
+  --red:#dc2626;--shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(79,70,229,.08);
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#eff1f8;min-height:100vh;color:#1e293b;}
+a{text-decoration:none;}
+
+/* =========================================================== */
+/* HEADER */
+/* =========================================================== */
+.header{background:linear-gradient(135deg,#312e81 0%,#4338ca 40%,#6d28d9 72%,#be185d 100%);
+  padding:34px 24px 30px;text-align:center;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-100px;right:-60px;width:320px;height:320px;
+  border-radius:50%;background:rgba(255,255,255,.05);}
+.header::after{content:'';position:absolute;bottom:-80px;left:-40px;width:240px;height:240px;
+  border-radius:50%;background:rgba(255,255,255,.04);}
+.om{display:inline-flex;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:7px 15px;
+  font-size:22px;margin-bottom:14px;position:relative;}
+.header h1{color:#fff;font-family:'Poppins',sans-serif;font-size:clamp(18px,4vw,30px);
+  font-weight:700;margin-bottom:8px;position:relative;}
+.header p{color:rgba(255,255,255,.82);font-size:13px;display:flex;align-items:center;
+  justify-content:center;gap:10px;flex-wrap:wrap;position:relative;}
+.header p strong{color:#fff;}
+
+/* =========================================================== */
+/* TOP BAR + RBAC */
+/* =========================================================== */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;
+  background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:200;
+  box-shadow:0 1px 8px rgba(0,0,0,.06);}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.role-switcher{display:flex;gap:4px;background:#f1f3f9;border-radius:20px;padding:3px;}
+.role-btn{padding:5px 14px;border-radius:16px;border:none;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .2s;color:#64748b;background:transparent;}
+.role-btn.active-admin{background:var(--indigo);color:#fff;}
+.role-btn.active-editor{background:#0891b2;color:#fff;}
+.role-btn.active-viewer{background:#64748b;color:#fff;}
+.role-label{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;
+  font-size:12px;font-weight:700;letter-spacing:.03em;}
+.role-label.admin{background:#f0fdf4;color:#059669;border:1px solid #bbf7d0;}
+.role-label.editor{background:#ecfeff;color:#0891b2;border:1px solid #a5f3fc;}
+.role-label.viewer{background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;}
+.btn-logout{background:#fff;border:1px solid #e2e8f0;color:#374151;border-radius:20px;
+  padding:5px 16px;font-size:12px;cursor:pointer;font-family:inherit;transition:background .2s;}
+.btn-logout:hover{background:#f8fafc;}
+
+/* =========================================================== */
+/* REWARD BANNER */
+/* =========================================================== */
+.reward-banner{background:linear-gradient(135deg,#78350f,#b45309,#d97706);
+  margin:0 16px;border-radius:var(--r);padding:16px 22px;display:flex;
+  align-items:flex-start;gap:14px;box-shadow:0 4px 20px rgba(180,83,9,.22);}
+.reward-banner h3{color:#fff;font-size:15px;font-weight:700;margin-bottom:3px;}
+.reward-banner p{color:rgba(255,255,255,.87);font-size:13px;line-height:1.6;}
+.reward-banner strong{color:#fde68a;}
+
+/* =========================================================== */
+/* TABS */
+/* =========================================================== */
+.tabs-bar{padding:14px 16px 0;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;}
+.tabs-bar::-webkit-scrollbar{display:none;}
+.tab-btn{white-space:nowrap;display:flex;align-items:center;gap:6px;padding:8px 18px;
+  border-radius:50px;border:1px solid #e2e8f0;background:#fff;color:#64748b;
+  font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit;}
+.tab-btn:hover{background:var(--indigo-light);color:var(--indigo);}
+.tab-btn.active{background:var(--indigo-dark);color:#fff;border-color:var(--indigo-dark);
+  box-shadow:0 2px 10px rgba(79,70,229,.32);}
+.content{padding:0 16px 48px;}
+.tab-content{display:none;padding-top:18px;}
+.tab-content.active{display:block;animation:fadeUp .28s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* =========================================================== */
+/* KPI STRIP */
+/* =========================================================== */
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;
+  border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px;}
+@media(max-width:600px){.kpi-strip{grid-template-columns:repeat(2,1fr);}}
+.kpi-cell{text-align:center;padding:24px 12px;border-right:1px solid #f1f5f9;}
+.kpi-cell:last-child{border-right:none;}
+.kpi-lbl{font-size:9.5px;font-weight:700;letter-spacing:.12em;color:#94a3b8;text-transform:uppercase;margin-bottom:6px;}
+.kpi-val{font-size:clamp(24px,3.5vw,36px);font-weight:300;color:var(--indigo);font-family:'Poppins',sans-serif;}
+.kpi-val.pink{color:#be185d;font-weight:600;}
+
+/* =========================================================== */
+/* CARDS */
+/* =========================================================== */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px;}
+.card-hd{padding:15px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;
+  justify-content:space-between;background:#fafbff;}
+.card-hd h3{font-size:14px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:7px;}
+.card-bd{padding:20px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+
+/* =========================================================== */
+/* BUTTONS */
+/* =========================================================== */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:9px;
+  border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;transition:all .2s;}
+.btn-p{background:var(--indigo);color:#fff;} .btn-p:hover{background:var(--indigo-dark);}
+.btn-danger{background:#fef2f2;color:var(--red);border:1px solid #fecaca;} .btn-danger:hover{background:#fee2e2;}
+.btn-ghost{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0;} .btn-ghost:hover{background:#e2e8f0;}
+.btn-csv{background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0;} .btn-csv:hover{background:#dcfce7;}
+.btn-full{width:100%;justify-content:center;padding:11px;font-size:13px;border-radius:10px;}
+
+/* =========================================================== */
+/* FIELD INPUT */
+/* =========================================================== */
+.fi{width:100%;padding:9px 13px;border:1px solid #e2e8f0;border-radius:9px;
+  font-family:inherit;font-size:13px;color:#1e293b;outline:none;transition:border .2s;background:#fff;}
+.fi:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.1);}
+.fi:disabled{background:#f8fafc;color:#94a3b8;cursor:not-allowed;}
+.form-grid{display:flex;flex-direction:column;gap:10px;}
+
+/* =========================================================== */
+/* PROGRESS */
+/* =========================================================== */
+.prog-track{height:8px;background:#eef2ff;border-radius:8px;overflow:hidden;}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--indigo),#7c3aed);border-radius:8px;transition:width .7s ease;}
+
+/* =========================================================== */
+/* OVERVIEW CATS */
+/* =========================================================== */
+.cat-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;
+  padding:8px 0;border-bottom:1px solid #f8fafc;}
+.cat-row:last-child{border-bottom:none;}
+.cat-row .l{display:flex;align-items:center;gap:9px;color:#374151;}
+.cat-row .r{font-weight:600;color:#374151;}
+.mini-bar-track{height:3px;background:#eef2ff;border-radius:3px;margin-top:3px;}
+.mini-bar-fill{height:100%;border-radius:3px;transition:width .5s;}
+
+/* =========================================================== */
+/* CONTACTS */
+/* =========================================================== */
+.contact-item{padding:12px 0;border-bottom:1px solid #f8fafc;}
+.contact-item:last-child{border-bottom:none;}
+.contact-item h4{font-size:13px;font-weight:700;color:#1e293b;margin-bottom:3px;}
+.contact-item .ci-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.contact-item .ci-name{color:var(--indigo);font-weight:600;font-size:13px;}
+.contact-item .ci-phone{font-size:12px;color:#059669;background:#f0fdf4;border:1px solid #bbf7d0;
+  border-radius:8px;padding:2px 8px;font-weight:600;}
+.assign-btn{font-size:11px;background:var(--indigo-light);color:var(--indigo);border:none;
+  border-radius:8px;padding:3px 10px;cursor:pointer;font-family:inherit;transition:background .2s;}
+.assign-btn:hover{background:#c7d2fe;}
+
+/* =========================================================== */
+/* TIMELINE / SEVA CHECKLIST */
+/* =========================================================== */
+.phase-tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.phase-tabs::-webkit-scrollbar{display:none;}
+.ptab{white-space:nowrap;padding:6px 14px;border-radius:50px;border:1px solid #e2e8f0;
+  background:#fff;color:#64748b;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.ptab:hover{background:var(--indigo-light);color:var(--indigo);}
+.ptab.act{background:var(--indigo-dark);color:#fff;border-color:var(--indigo-dark);}
+.ptab.eday{border-color:#fbcfe8;color:#9d174d;}
+.ptab.eday.act{background:#fdf2f8;border-color:#f9a8d4;color:#9d174d;}
+
+/* Seva task card */
+.seva-item{display:flex;align-items:flex-start;gap:12px;padding:16px 20px;
+  border-bottom:1px solid #f8fafc;transition:background .15s;position:relative;}
+.seva-item:hover{background:#fafbff;}
+.seva-item:last-child{border-bottom:none;}
+.seva-cb{width:18px;height:18px;margin-top:3px;accent-color:var(--indigo);cursor:pointer;flex-shrink:0;}
+.seva-body{flex:1;}
+.seva-title{font-size:14px;font-weight:600;color:#1e293b;margin-bottom:2px;transition:color .2s;}
+.seva-item.done .seva-title{text-decoration:line-through;color:#94a3b8;}
+.seva-item.done .seva-date{opacity:.55;}
+.seva-desc{font-size:12px;color:#64748b;margin-bottom:7px;line-height:1.5;}
+.seva-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.seva-date-pill{background:var(--indigo-light);color:var(--indigo);font-size:10px;font-weight:700;
+  border-radius:12px;padding:3px 10px;flex-shrink:0;}
+.tag-badge{display:inline-block;font-size:10px;font-weight:700;border-radius:6px;padding:2px 8px;}
+/* Contact chip on seva */
+.seva-contact{display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap;}
+.sc-name{font-size:11px;font-weight:700;color:#374151;background:#f1f5f9;border-radius:8px;
+  padding:2px 8px;display:flex;align-items:center;gap:4px;}
+.sc-phone{font-size:11px;font-weight:700;color:var(--green);background:#f0fdf4;
+  border:1px solid #bbf7d0;border-radius:8px;padding:2px 8px;}
+.seva-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;opacity:0;transition:opacity .2s;}
+.seva-item:hover .seva-actions{opacity:1;}
+.del-btn{background:none;border:none;color:#d1d5db;cursor:pointer;font-size:16px;line-height:1;
+  padding:2px;transition:color .2s;}
+.del-btn:hover{color:#ef4444;}
+
+/* =========================================================== */
+/* TABLE */
+/* =========================================================== */
+.dt{width:100%;border-collapse:collapse;font-size:13px;}
+.dt th{background:#fafbff;padding:10px 14px;text-align:left;font-weight:600;color:#64748b;
+  font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e8eaf0;}
+.dt td{padding:11px 14px;border-bottom:1px solid #f8fafc;color:#374151;}
+.dt tbody tr:hover{background:#fafbff;}
+.dt tbody tr:last-child td{border-bottom:none;}
+
+/* =========================================================== */
+/* BADGES */
+/* =========================================================== */
+.badge{display:inline-block;font-size:10px;font-weight:700;border-radius:6px;padding:2px 8px;}
+.b-blue{background:#eff6ff;color:#2563eb;} .b-green{background:#f0fdf4;color:#059669;}
+.b-orange{background:#fff7ed;color:#c2410c;} .b-pink{background:#fdf2f8;color:#9d174d;}
+.b-purple{background:#faf5ff;color:#7e22ce;} .b-amber{background:#fffbeb;color:#92400e;}
+.b-gray{background:#f8fafc;color:#475569;} .b-teal{background:#f0fdfa;color:#0f766e;}
+
+/* =========================================================== */
+/* BUDGET */
+/* =========================================================== */
+.bal-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f8fafc;}
+.bal-row:last-child{border-bottom:none;}
+.bal-lbl{font-size:13px;color:#374151;flex:0 0 175px;display:flex;align-items:center;gap:7px;}
+.bal-bar-wrap{flex:1;}
+.bal-track{height:6px;background:#eef2ff;border-radius:6px;overflow:hidden;}
+.bal-fill{height:100%;background:var(--indigo);border-radius:6px;transition:width .5s;}
+.bal-pct{font-size:10px;color:#94a3b8;width:28px;text-align:right;font-weight:600;}
+.bal-inp{width:78px;padding:4px 8px;border:1px solid #e2e8f0;border-radius:7px;
+  font-family:inherit;font-size:12px;font-weight:700;color:#1e293b;text-align:right;outline:none;}
+.bal-inp:focus{border-color:var(--indigo);}
+.bal-inp:disabled{background:#f8fafc;color:#94a3b8;}
+.del-x{background:none;border:none;color:#d1d5db;cursor:pointer;font-size:16px;padding:2px;}
+.del-x:hover{color:#94a3b8;}
+.footer-strip{background:var(--indigo-light);border-top:1px solid #c7d2fe;padding:12px 20px;
+  display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;color:var(--indigo-dark);}
+
+/* =========================================================== */
+/* VOLUNTEERS */
+/* =========================================================== */
+.vol-card{display:flex;align-items:center;gap:13px;padding:13px 20px;border-bottom:1px solid #f8fafc;}
+.vol-card:last-child{border-bottom:none;}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;color:#fff;flex-shrink:0;}
+.vol-name{font-size:14px;font-weight:600;color:#1e293b;}
+.vol-sub{font-size:12px;color:#64748b;}
+.vol-phone{font-size:11px;font-weight:700;color:var(--green);background:#f0fdf4;
+  border:1px solid #bbf7d0;border-radius:8px;padding:2px 9px;margin-top:3px;display:inline-block;}
+
+/* =========================================================== */
+/* CHECKLIST */
+/* =========================================================== */
+.ck-item{display:flex;align-items:flex-start;gap:11px;padding:13px 20px;border-bottom:1px solid #f8fafc;transition:background .15s;}
+.ck-item:hover{background:#fafbff;}
+.ck-item:last-child{border-bottom:none;}
+.ck-item input[type=checkbox]{width:16px;height:16px;margin-top:3px;accent-color:var(--indigo);cursor:pointer;flex-shrink:0;}
+.ck-item.done .ck-title{text-decoration:line-through;color:#94a3b8;}
+.ck-title{font-size:13px;font-weight:600;color:#1e293b;margin-bottom:1px;}
+.ck-sub{font-size:11px;color:#64748b;}
+
+/* =========================================================== */
+/* ANNOUNCEMENTS */
+/* =========================================================== */
+.notice-item{display:flex;align-items:flex-start;gap:11px;padding:14px 20px;
+  border-bottom:1px solid #f8fafc;position:relative;}
+.notice-item:last-child{border-bottom:none;}
+.ni-icon{font-size:17px;margin-top:1px;}
+.ni-title{font-size:13px;font-weight:700;color:#1e293b;margin-bottom:2px;}
+.ni-body{font-size:12px;color:#64748b;line-height:1.55;}
+.ni-date{font-size:10px;color:#94a3b8;margin-top:3px;}
+.ni-del{position:absolute;right:14px;top:14px;background:none;border:none;
+  color:#d1d5db;cursor:pointer;font-size:16px;line-height:1;}
+.ni-del:hover{color:#94a3b8;}
+
+/* =========================================================== */
+/* DONATION SUMMARY */
+/* =========================================================== */
+.sum-kpi{background:#f1f3f9;border-radius:10px;padding:14px;text-align:center;}
+.sum-kpi-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;}
+.sum-kpi-val{font-size:20px;font-weight:700;color:var(--indigo);}
+.mayapur-box{border:1.5px solid #fbbf24;border-radius:var(--r);padding:16px 20px;
+  background:#fffdf5;margin-bottom:18px;}
+.mayapur-box h3{font-size:14px;font-weight:700;color:#92400e;margin-bottom:6px;}
+.register-empty{padding:36px;text-align:center;color:#94a3b8;font-size:13px;}
+
+/* =========================================================== */
+/* MODAL */
+/* =========================================================== */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:999;
+  align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:18px;padding:26px;width:100%;max-width:460px;
+  max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.22);}
+.modal h2{font-size:17px;font-weight:700;margin-bottom:18px;color:#1e293b;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.fgroup{margin-bottom:13px;}
+.fgroup label{display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
+
+/* =========================================================== */
+/* TOAST */
+/* =========================================================== */
+.toast{position:fixed;bottom:22px;right:22px;background:#1e293b;color:#fff;
+  padding:11px 18px;border-radius:11px;font-size:13px;font-weight:500;z-index:9999;
+  transform:translateY(70px);opacity:0;transition:all .32s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 8px 24px rgba(0,0,0,.18);}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* =========================================================== */
+/* UTILS */
+/* =========================================================== */
+.empty-state{padding:40px;text-align:center;color:#94a3b8;font-size:13px;}
+.hidden{display:none !important;}
+.row-wrap{display:flex;gap:8px;flex-wrap:wrap;}
+.viewer-notice{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 14px;
+  font-size:12px;color:#92400e;font-weight:600;display:none;align-items:center;gap:6px;}
+.viewer-notice.show{display:flex;}
+</style>
+</head>
+<body>
+
+<!-- ======================================================== -->
+<!-- HEADER -->
+<!-- ======================================================== -->
+<div class="header">
+  <div class="om">ॐ</div>
+  <h1>Krishna Janmashtami 2026 — Event Manager</h1>
+  <p>ISKCON Pokhara <span style="opacity:.4">|</span>
+    <strong>Janmashtami: September 4, 2026</strong>
+    <span style="opacity:.4">|</span> Nanda Mahotsav: September 5</p>
+</div>
+
+<!-- ======================================================== -->
+<!-- TOP BAR WITH RBAC -->
+<!-- ======================================================== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div id="role-label" class="role-label admin">🟢 Admin Mode</div>
+    <div class="viewer-notice" id="viewer-notice">👁 View-only mode — editing disabled</div>
+  </div>
+  <div class="topbar-right">
+    <div class="role-switcher" title="Switch Access Role">
+      <button class="role-btn active-admin" id="rb-admin" onclick="setRole('Admin')">🔑 Admin</button>
+      <button class="role-btn" id="rb-editor" onclick="setRole('Editor')">✏️ Editor</button>
+      <button class="role-btn" id="rb-viewer" onclick="setRole('Viewer')">👁 Viewer</button>
+    </div>
+    <button class="btn-logout" onclick="showToast('Logged out successfully! Hare Krishna 🙏')">Log Out</button>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- REWARD BANNER -->
+<!-- ======================================================== -->
+<div class="reward-banner" style="margin-top:14px;">
+  <div style="font-size:32px;flex-shrink:0;">🕌</div>
+  <div>
+    <h3>Mayapur Dham Pilgrimage Reward</h3>
+    <p>Any single devotee whose total donation reaches <strong>NPR 2,00,000</strong> receives a fully sponsored trip to Sri Mayapur Dham, West Bengal — courtesy of ISKCON Pokhara, as a token of gratitude for their seva. See the Donations tab for live tracking.</p>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- NAVIGATION TABS -->
+<!-- ======================================================== -->
+<div class="tabs-bar" id="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('overview',this)">🗂️ Overview</button>
+  <button class="tab-btn" onclick="switchTab('timeline',this)">📅 Timeline</button>
+  <button class="tab-btn" onclick="switchTab('donations',this)">💛 Donations</button>
+  <button class="tab-btn" onclick="switchTab('budget',this)">💰 Budget</button>
+  <button class="tab-btn" onclick="switchTab('volunteers',this)">👥 Volunteers</button>
+  <button class="tab-btn" onclick="switchTab('checklist',this)">✅ Checklist</button>
+  <button class="tab-btn" onclick="switchTab('announcements',this)">📢 Announcements</button>
+</div>
+
+<div class="content">
+
+<!-- ======================================================== -->
+<!-- OVERVIEW TAB -->
+<!-- ======================================================== -->
+<div class="tab-content active" id="tab-overview">
+  <div class="kpi-strip">
+    <div class="kpi-cell"><div class="kpi-lbl">Days to Janmashtami</div><div class="kpi-val" id="kpi-days">76</div></div>
+    <div class="kpi-cell"><div class="kpi-lbl">Total Donations</div><div class="kpi-val pink" id="kpi-don">NPR 0</div></div>
+    <div class="kpi-cell"><div class="kpi-lbl">Volunteers</div><div class="kpi-val" id="kpi-vol">0</div></div>
+    <div class="kpi-cell"><div class="kpi-lbl">Tasks Done</div><div class="kpi-val" id="kpi-tasks">0/0</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hd"><h3>🌸 Donation Goal Progress</h3></div>
+      <div class="card-bd">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px;">
+          <span>Target: NPR 1,00,000</span><span id="ov-pct" style="font-weight:700;color:var(--indigo)">0%</span>
+        </div>
+        <div class="prog-track" style="margin-bottom:18px;"><div class="prog-bar" id="ov-bar" style="width:0%"></div></div>
+        <div id="ov-cats"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><h3>📞 Key Contacts</h3></div>
+      <div style="padding:8px 20px;" id="contacts-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- TIMELINE TAB (Seva Checklist with Contact) -->
+<!-- ======================================================== -->
+<div class="tab-content" id="tab-timeline">
+  <!-- Phase navigator -->
+  <div class="card">
+    <div class="card-bd">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-size:18px">📅</span>
+        <h3 style="font-size:15px;font-weight:700;">Full Plan — Jun 20 to Sept 4, 2026</h3>
+      </div>
+      <p style="font-size:12px;color:#64748b;margin-bottom:14px;">
+        Click a phase to view seva tasks. Each task has an assigned devotee + contact. Check tasks as completed. 🌸 days = event days.
+      </p>
+      <div class="phase-tabs" id="phase-tabs"></div>
+    </div>
+  </div>
+
+  <!-- Phase task list -->
+  <div class="card">
+    <div class="card-hd">
+      <h3 id="phase-title">📋 Phase</h3>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <!-- Progress mini -->
+        <span id="phase-progress" style="font-size:12px;color:#94a3b8;"></span>
+        <button class="btn btn-p admin-only" onclick="openSevaModal()" id="add-seva-btn">+ Add Seva</button>
+      </div>
+    </div>
+    <!-- Phase progress bar -->
+    <div style="padding:0 20px;">
+      <div class="prog-track" style="border-radius:0;height:4px;margin:0;">
+        <div class="prog-bar" id="phase-bar" style="width:0%;border-radius:0;"></div>
+      </div>
+    </div>
+    <div id="seva-list"></div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- DONATIONS TAB -->
+<!-- ======================================================== -->
+<div class="tab-content" id="tab-donations">
+  <div class="two-col" style="margin-bottom:0;">
+    <div class="card">
+      <div class="card-hd"><h3>💛 Record Donation</h3></div>
+      <div class="card-bd form-grid">
+        <input id="d-name" class="fi" placeholder="Donor name / Prabhu name *"/>
+        <input id="d-phone" class="fi" placeholder="Phone number (optional)"/>
+        <select id="d-cat" class="fi">
+          <option value="">-- Donation type * --</option>
+          <option>Deity decoration</option><option>Maha-prasad</option>
+          <option>Sound &amp; lights</option><option>Printing &amp; invitations</option>
+          <option>Drama / performance</option><option>Miscellaneous</option>
+        </select>
+        <input id="d-amt" class="fi" type="number" min="1" placeholder="Amount (NPR) *"/>
+        <select id="d-pay" class="fi">
+          <option value="">-- Payment mode * --</option>
+          <option>Cash</option><option>Bank Transfer</option>
+          <option>eSewa / Khalti</option><option>Cheque</option>
+        </select>
+        <input id="d-note" class="fi" placeholder="Note / transaction ID (optional)"/>
+        <button class="btn btn-p btn-full admin-only" onclick="recordDonation()">+ Record Donation</button>
+        <div class="viewer-notice" id="don-viewer-notice" style="margin-top:4px;">👁 Login as Admin or Editor to record donations</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><h3>📊 Summary</h3></div>
+      <div class="card-bd">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+          <div class="sum-kpi"><div class="sum-kpi-lbl">Total Collected</div><div class="sum-kpi-val" id="sum-total">NPR 0</div></div>
+          <div class="sum-kpi"><div class="sum-kpi-lbl">No. of Donors</div><div class="sum-kpi-val" id="sum-donors">0</div></div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">By Category</div>
+        <div id="sum-by-cat" style="color:#94a3b8;font-size:13px;">No donations yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Honor Roll -->
+  <div class="mayapur-box">
+    <h3>🏕️ Mayapur Dham Honor Roll</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:8px;">
+      Devotees whose single cumulative donation reaches <strong style="color:#92400e;">NPR 2,00,000</strong> earn a fully sponsored trip to Sri Mayapur Dham.
+    </p>
+    <div id="mayapur-roll" style="font-size:13px;color:#94a3b8;">No qualifying donor yet — be the first! 🙏</div>
+  </div>
+
+  <!-- Register -->
+  <div class="card">
+    <div class="card-hd">
+      <h3>📋 Donation Register</h3>
+      <button class="btn btn-csv" onclick="exportDonations()">↓ Export CSV</button>
+    </div>
+    <div id="donation-register"></div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- BUDGET TAB -->
+<!-- ======================================================== -->
+<div class="tab-content" id="tab-budget">
+  <div style="display:grid;grid-template-columns:1fr 1fr;margin-bottom:20px;">
+    <div style="text-align:center;padding:22px 12px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:#94a3b8;text-transform:uppercase;margin-bottom:5px;">Total Budget</div>
+      <div style="font-size:26px;font-weight:700;color:var(--indigo);">NPR 100,000</div>
+    </div>
+    <div style="text-align:center;padding:22px 12px;border-left:1px solid #e8eaf0;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:#94a3b8;text-transform:uppercase;margin-bottom:5px;">Spent So Far</div>
+      <div style="font-size:26px;font-weight:700;color:var(--indigo);" id="budget-spent">NPR 0</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-hd">
+      <h3>🗂 Budget Allocation <span style="font-size:11px;font-weight:400;color:#94a3b8;">(admin can edit amounts)</span></h3>
+      <button class="btn btn-ghost admin-only" onclick="addBudgetCat()">+ Add Category</button>
+    </div>
+    <div style="padding:16px 20px;" id="budget-alloc"></div>
+    <div class="footer-strip">
+      <span>Total allocated</span>
+      <span id="budget-total-alloc">NPR 100,000</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>➕ Add Expense</h3></div>
+    <div style="padding:16px 20px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+        <input id="exp-item" class="fi" style="flex:2;min-width:120px;" placeholder="Item name"/>
+        <input id="exp-amt" class="fi" style="flex:1;min-width:80px;" placeholder="NPR" type="number"/>
+        <select id="exp-cat" class="fi" style="flex:1.5;min-width:120px;">
+          <option value="">-- Category --</option>
+          <option>Deity decoration</option><option>Maha-prasad</option>
+          <option>Sound &amp; lights</option><option>Printing &amp; invitations</option>
+          <option>Drama / performance</option><option>Miscellaneous</option>
+        </select>
+        <button class="btn btn-p admin-only" onclick="addExpense()">Add</button>
+      </div>
+      <div id="expense-list"><div style="color:#94a3b8;font-size:13px;">No expenses added yet</div></div>
+    </div>
+    <div class="footer-strip">
+      <span>Total spent</span>
+      <span id="budget-total-spent">NPR 0</span>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- VOLUNTEERS TAB -->
+<!-- ======================================================== -->
+<div class="tab-content" id="tab-volunteers">
+  <div class="card">
+    <div class="card-hd">
+      <h3>👥 Volunteer Roster <span id="vol-count-badge" style="font-size:11px;color:#94a3b8;font-weight:400;"></span></h3>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-csv" onclick="exportVolunteers()">↓ Export</button>
+        <button class="btn btn-p admin-only" onclick="openVolModal()">+ Add Volunteer</button>
+      </div>
+    </div>
+    <div id="volunteer-list"></div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- CHECKLIST TAB -->
+<!-- ======================================================== -->
+<div class="tab-content" id="tab-checklist">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:var(--indigo);" id="ck-progress-txt">0 / 0 tasks</div>
+      <div style="font-size:12px;color:#64748b;">Seva preparation checklist</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-csv" onclick="exportChecklist()">↓ Export</button>
+      <button class="btn btn-p admin-only" onclick="openTaskModal()">+ Add Task</button>
+    </div>
+  </div>
+  <div class="prog-track" style="margin-bottom:18px;"><div class="prog-bar" id="ck-bar" style="width:0%"></div></div>
+  <div id="checklist-by-dept"></div>
+</div>
+
+<!-- ======================================================== -->
+<!-- ANNOUNCEMENTS TAB -->
+<!-- ======================================================== -->
+<div class="tab-content" id="tab-announcements">
+  <div class="card admin-only" style="margin-bottom:18px;" id="post-announce-card">
+    <div class="card-hd"><h3>🔥 Post Announcement</h3></div>
+    <div class="card-bd form-grid">
+      <input id="an-title" class="fi" placeholder="Announcement title *"/>
+      <textarea id="an-body" class="fi" rows="3" placeholder="Announcement message..."></textarea>
+      <button class="btn btn-p btn-full" onclick="postAnnouncement()">+ Post Announcement</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-hd"><h3>📋 Notice Board</h3></div>
+    <div id="announcements-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><h3>📄 Ready-made Invitation Text</h3></div>
+    <div class="card-bd">
+      <pre id="invite-text" style="font-family:'Inter',sans-serif;font-size:12.5px;color:#374151;
+        line-height:1.9;white-space:pre-wrap;background:#fafbff;border-radius:10px;padding:16px;
+        border:1px solid #e8eaf0;">🙏 Hare Krishna! Jay Radhe!
+
+You are warmly invited to celebrate:
+
+🌟 SRI KRISHNA JANMASHTAMI 2026 🌟
+The divine Appearance of Lord Sri Krishna.
+
+📅 Date: Friday, September 4, 2026
+⏰ Programme begins: 4:00 AM (Mangala Arati)
+   Midnight Celebration: 12:00 AM (Sept 4–5)
+
+📍 Venue: ISKCON Temple, Pokhara
+   [Insert full address here]
+   [Insert Google Map link]
+
+🎉 Programme Highlights:
+• 4:00 AM — Mangala Arati
+• 10:00 AM — Grand Abhishek of Radha–Krishna
+• 12:00 PM — Continuous Hare Krishna Kirtan
+• 4:00 PM — Krishna Leela Drama
+• 11:00 PM — MIDNIGHT ARATI (Conch 🐚 108 times!)
+• 5 Sept — Nanda Mahotsav Grand Feast 🌸
+
+⚠ SPECIAL SEVA OPPORTUNITY:
+Any devotee whose total donation reaches NPR 2,00,000
+will receive a fully sponsored trip to Sri Mayapur Dham!
+
+🌸 September 5: Nanda Mahotsav — Grand prasad feast for all!
+
+🍽 Ekadashi fasting observed. Break fast after midnight.
+All are welcome — devotees, families, and seekers.
+
+Hare Krishna Hare Krishna Krishna Krishna Hare Hare
+Hare Rama Hare Rama Rama Rama Hare Hare 🙏
+
+— ISKCON Pokhara Seva Team</pre>
+      <button class="btn btn-ghost btn-full" style="margin-top:12px;" onclick="copyInvite()">📋 Copy invite text</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<!-- ======================================================== -->
+<!-- SEVA TASK MODAL (Timeline) -->
+<!-- ======================================================== -->
+<div class="overlay" id="seva-modal">
+  <div class="modal">
+    <h2>📅 Add Seva Task</h2>
+    <div class="fgroup"><label>Date / Time</label><input id="sm-date" class="fi" placeholder="e.g. Sept 3 or 4 AM"/></div>
+    <div class="fgroup"><label>Seva Title *</label><input id="sm-title" class="fi" placeholder="e.g. Flower garland arrangement"/></div>
+    <div class="fgroup"><label>Description</label><textarea id="sm-desc" class="fi" rows="2" placeholder="Details..."></textarea></div>
+    <div class="fgroup"><label>Category Tag</label>
+      <select id="sm-tag" class="fi">
+        <option>Puja/Seva</option><option>Kitchen Seva</option><option>Kirtan</option>
+        <option>Decoration</option><option>Drama</option><option>Meeting</option>
+        <option>Logistics</option><option>Prasad</option><option>Security</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>Assigned Devotee</label><input id="sm-person" class="fi" placeholder="e.g. Hari Das Prabhu"/></div>
+    <div class="fgroup"><label>Contact Phone</label><input id="sm-phone" class="fi" placeholder="e.g. +977 984 123 4567"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('seva-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="submitSeva()">Add Seva Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Volunteer Modal -->
+<div class="overlay" id="vol-modal">
+  <div class="modal">
+    <h2>👤 Add Volunteer</h2>
+    <div class="fgroup"><label>Full Name *</label><input id="vm-name" class="fi" placeholder="e.g. Hari Das Prabhu"/></div>
+    <div class="fgroup"><label>Phone *</label><input id="vm-phone" class="fi" placeholder="+977 984 ..."/></div>
+    <div class="fgroup"><label>Department</label>
+      <select id="vm-dept" class="fi">
+        <option>Deity Seva</option><option>Kitchen Seva</option><option>Kirtan</option>
+        <option>Donation Desk</option><option>Security</option><option>Decoration</option>
+        <option>Management</option><option>Drama</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>Initiation Status</label>
+      <select id="vm-init" class="fi">
+        <option>Uninitiated</option><option>Harinam</option><option>Brahmana</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>Skills / Notes</label>
+      <input id="vm-skills" class="fi" placeholder="e.g. Mridanga, Cooking, Accounts"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('vol-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="submitVolunteer()">Add Volunteer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Task Modal (Checklist) -->
+<div class="overlay" id="task-modal">
+  <div class="modal">
+    <h2>✅ Add Checklist Task</h2>
+    <div class="fgroup"><label>Task Title *</label><input id="tm-title" class="fi" placeholder="e.g. Book sound equipment"/></div>
+    <div class="fgroup"><label>Department</label>
+      <select id="tm-dept" class="fi">
+        <option>Decoration</option><option>Kitchen Seva</option><option>Kirtan</option>
+        <option>Donation Desk</option><option>Security</option><option>Management</option>
+        <option>Deity Seva</option><option>Drama</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>Assigned To</label><input id="tm-person" class="fi" placeholder="e.g. Radha Priya Devi Dasi"/></div>
+    <div class="fgroup"><label>Due Date</label><input id="tm-due" class="fi" type="date"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('task-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="submitTask()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Contact Modal -->
+<div class="overlay" id="contact-modal">
+  <div class="modal">
+    <h2>📞 Assign Contact</h2>
+    <div id="contact-role-lbl" style="font-size:13px;color:#64748b;margin-bottom:14px;"></div>
+    <div class="fgroup"><label>Devotee Name *</label><input id="cm-name" class="fi" placeholder="e.g. Govinda Das Prabhu"/></div>
+    <div class="fgroup"><label>Phone *</label><input id="cm-phone" class="fi" placeholder="+977 984 ..."/></div>
+    <div class="fgroup"><label>Notes (optional)</label><input id="cm-note" class="fi" placeholder="e.g. Available 6 AM–8 PM"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('contact-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="submitContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ======================================================== -->
+<!-- JAVASCRIPT -->
+<!-- ======================================================== -->
+<script>
+'use strict';
+
+// ============================================================
+// STATE & RBAC
+// ============================================================
+const STATE = {
+  role: 'Admin',  // 'Admin' | 'Editor' | 'Viewer'
+  activePhase: 'Sept 1–3',
+  assigningContact: -1,
+};
+
+function canEdit() { return STATE.role === 'Admin' || STATE.role === 'Editor'; }
+function isAdmin() { return STATE.role === 'Admin'; }
+
+function setRole(role) {
+  STATE.role = role;
+
+  // Update role-switcher buttons
+  document.querySelectorAll('.role-btn').forEach(b => b.className = 'role-btn');
+  if(role==='Admin')   document.getElementById('rb-admin').classList.add('active-admin');
+  if(role==='Editor')  document.getElementById('rb-editor').classList.add('active-editor');
+  if(role==='Viewer')  document.getElementById('rb-viewer').classList.add('active-viewer');
+
+  // Role label
+  const lbl = document.getElementById('role-label');
+  lbl.className = 'role-label';
+  if(role==='Admin')  { lbl.className +=' admin'; lbl.textContent = '🟢 Admin Mode'; }
+  if(role==='Editor') { lbl.className +=' editor'; lbl.textContent = '✏️ Editor Mode'; }
+  if(role==='Viewer') { lbl.className +=' viewer'; lbl.textContent = '👁 View-only Mode'; }
+
+  // Viewer notice
+  const vn = document.getElementById('viewer-notice');
+  vn.className = 'viewer-notice' + (role==='Viewer' ? ' show' : '');
+
+  // Admin-only elements
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = isAdmin() ? '' : 'none';
+  });
+
+  // Editor + Admin elements (can-edit)
+  document.querySelectorAll('.editor-only').forEach(el => {
+    el.style.display = canEdit() ? '' : 'none';
+  });
+
+  // Field inputs — disable in viewer mode
+  document.querySelectorAll('.fi').forEach(el => {
+    el.disabled = (role==='Viewer');
+  });
+
+  // bal-inp (budget inputs) — admin only
+  document.querySelectorAll('.bal-inp').forEach(el => {
+    el.disabled = !isAdmin();
+  });
+
+  // Donation form viewer notice
+  const dvn = document.getElementById('don-viewer-notice');
+  if(dvn) dvn.style.display = !canEdit() ? 'flex' : 'none';
+
+  // Post announce card visibility
+  const pac = document.getElementById('post-announce-card');
+  if(pac) pac.style.display = isAdmin() ? '' : 'none';
+
+  // Re-render to update conditional buttons
+  refreshCurrentTab();
+
+  showToast(`Mode switched to ${role} — ${role==='Admin'?'Full access 🔑':role==='Editor'?'Edit access ✏️':'Read-only 👁'}`);
+}
+
+function refreshCurrentTab() {
+  const active = document.querySelector('.tab-content.active');
+  if(!active) return;
+  const id = active.id.replace('tab-','');
+  if(id==='overview') renderOverview();
+  if(id==='timeline') renderPhaseItems();
+  if(id==='donations') renderDonations();
+  if(id==='budget') renderBudget();
+  if(id==='volunteers') renderVolunteers();
+  if(id==='checklist') renderChecklist();
+  if(id==='announcements') renderAnnouncements();
+}
+
+// ============================================================
+// DATA
+// ============================================================
+const DATA = {
+  donations: [],
+  volunteers: [
+    { id:1, name:'Prabesh Prabhu', phone:'+977 9841 000 001', dept:'Management', init:'Brahmana', skills:'Leadership, Accounts' },
+    { id:2, name:'Sunita Devi Dasi', phone:'+977 9841 000 002', dept:'Kitchen Seva', init:'Harinam', skills:'Cooking, Prasad' },
+    { id:3, name:'Hari Das Prabhu', phone:'+977 9841 000 003', dept:'Kirtan', init:'Harinam', skills:'Mridanga, Kartals' },
+  ],
+  tasks: [
+    { id:1, title:'Book sound equipment vendor', dept:'Kirtan', due:'2026-08-01', done:false, assignedTo:'Hari Das Prabhu' },
+    { id:2, title:'Order Deity flower garlands', dept:'Deity Seva', due:'2026-08-15', done:true, assignedTo:'Govinda Das' },
+    { id:3, title:'Print invitations & banners', dept:'Management', due:'2026-07-20', done:false, assignedTo:'Prabesh Prabhu' },
+    { id:4, title:'Kitchen utensils inventory check', dept:'Kitchen Seva', due:'2026-07-10', done:true, assignedTo:'Sunita Devi Dasi' },
+    { id:5, title:'Security briefing & post assignment', dept:'Security', due:'2026-09-01', done:false, assignedTo:'Ram Prabhu' },
+    { id:6, title:'Setup donation desk with QR codes', dept:'Donation Desk', due:'2026-09-02', done:false, assignedTo:'Ananta Das' },
+    { id:7, title:'Kirtan team weekly rehearsal', dept:'Kirtan', due:'2026-08-25', done:false, assignedTo:'Hari Das Prabhu' },
+    { id:8, title:'Confirm drama script & roles', dept:'Drama', due:'2026-07-30', done:false, assignedTo:'Nitai Prabhu' },
+  ],
+  announcements: [
+    { id:1, title:'Volunteer Registration is Open!', body:'All devotees wishing to serve during Janmashtami 2026 please register your name, department preference, and availability by July 1. Hare Krishna!', date:'Jun 20, 2026' },
+    { id:2, title:'Mayapur Dham Reward Announced!', body:'Any devotee whose total donation reaches NPR 2,00,000 will receive a fully sponsored trip to Sri Mayapur Dham, courtesy of ISKCON Pokhara. Donate and earn this rare blessing!', date:'Jun 20, 2026' },
+    { id:3, title:'Fasting Guidelines', body:'Devotees are to observe nirjala (no water) or phalahar (fruits only) fast from sunrise on September 4. The fast is broken after midnight Mangala Arati and on Sept 5.', date:'Jun 20, 2026' },
+  ],
+  categories: [
+    { name:'Deity decoration', target:15000, icon:'🪔', color:'#4f46e5' },
+    { name:'Maha-prasad', target:30000, icon:'🍲', color:'#7c3aed' },
+    { name:'Sound & lights', target:20000, icon:'🎵', color:'#be185d' },
+    { name:'Printing & invitations', target:10000, icon:'📜', color:'#f59e0b' },
+    { name:'Drama / performance', target:15000, icon:'🎭', color:'#059669' },
+    { name:'Miscellaneous', target:10000, icon:'📦', color:'#6366f1' },
+  ],
+  expenses: [],
+  contacts: [
+    { role:'Event In-charge', name:'Prabesh Prabhu', phone:'+977 9841 000 001', dept:'ISKCON Pokhara' },
+    { role:'Head Pujari', name:null, phone:null, dept:'Deity seva' },
+    { role:'Kirtan Leader', name:null, phone:null, dept:'Mridanga & kirtan' },
+    { role:'Prasad Coordinator', name:null, phone:null, dept:'Kitchen seva' },
+    { role:'Donation Desk', name:null, phone:null, dept:'Accounts & receipts' },
+    { role:'Security Head', name:null, phone:null, dept:'Crowd & access management' },
+  ],
+  timeline: {
+    'Jun 20–30': [
+      { id:1, date:'Jun 20', title:'Event planning kickoff meeting', desc:'Initial coordination with all department heads — confirm roles, set targets.', tag:'Meeting', done:false, person:'Prabesh Prabhu', phone:'+977 9841 000 001' },
+      { id:2, date:'Jun 25', title:'Open volunteer registration', desc:'Post registration links on WhatsApp groups and temple notice board.', tag:'Logistics', done:false, person:'Ananta Das Prabhu', phone:'+977 9851 000 002' },
+      { id:3, date:'Jun 28', title:'Launch donation drive', desc:'Announce NPR 1,00,000 fundraising goal via WhatsApp, Facebook, and temple.', tag:'Logistics', done:false, person:'Prabesh Prabhu', phone:'+977 9841 000 001' },
+    ],
+    'Jul 1–15': [
+      { id:4, date:'Jul 1', title:'Confirm all department leads', desc:'Finalize all seva heads and their teams. Share contact list.', tag:'Meeting', done:false, person:'Prabesh Prabhu', phone:'+977 9841 000 001' },
+      { id:5, date:'Jul 5', title:'Book sound system & lights vendor', desc:'Confirm vendor, finalize contract and deposit for Sept 4–5.', tag:'Logistics', done:false, person:'Hari Das Prabhu', phone:'+977 9841 000 003' },
+      { id:6, date:'Jul 10', title:'Print invitation design approved', desc:'Send to press: banner, pamphlet, WhatsApp invitation card.', tag:'Logistics', done:false, person:'Prabesh Prabhu', phone:'+977 9841 000 001' },
+    ],
+    'Jul 16–31': [
+      { id:7, date:'Jul 20', title:'Kirtan team practice begins', desc:'Weekly practice every Sunday after morning temple program.', tag:'Kirtan', done:false, person:'Hari Das Prabhu', phone:'+977 9841 000 003' },
+      { id:8, date:'Jul 25', title:'Drama script finalized', desc:'Confirm roles, dialogues, and costumes for Krishna Leela drama.', tag:'Drama', done:false, person:'Nitai Prabhu', phone:'+977 9831 000 004' },
+    ],
+    'Aug 1–15': [
+      { id:9, date:'Aug 1', title:'Mid-event planning review meeting', desc:'Review checklist status, donations raised, vendor confirmations.', tag:'Meeting', done:false, person:'Prabesh Prabhu', phone:'+977 9841 000 001' },
+      { id:10, date:'Aug 10', title:'Deity outfit design ordered', desc:'Special Janmashtami outfit for Sri Sri Radha Madhava from Vrindavan.', tag:'Puja/Seva', done:false, person:'Head Pujari', phone:'[Assign]' },
+    ],
+    'Aug 16–25': [
+      { id:11, date:'Aug 16', title:'Full volunteer training day', desc:'All seva departments trained together — kitchen, security, donation desk.', tag:'Meeting', done:false, person:'Prabesh Prabhu', phone:'+977 9841 000 001' },
+      { id:12, date:'Aug 20', title:'Decoration team site measurement', desc:'Measure mandap space, plan floral layout, confirm material requirements.', tag:'Decoration', done:false, person:'Radha Priya Devi Dasi', phone:'+977 9861 000 005' },
+    ],
+    'Aug 26–31': [
+      { id:13, date:'Aug 27', title:'Final budget review & approvals', desc:'Approve all pending purchase requests before Sept 1.', tag:'Meeting', done:false, person:'Prabesh Prabhu', phone:'+977 9841 000 001' },
+      { id:14, date:'Aug 30', title:'Prasad menu finalized', desc:'Confirm all items for Maha-prasad distribution — quantities ordered.', tag:'Kitchen Seva', done:false, person:'Sunita Devi Dasi', phone:'+977 9841 000 002' },
+    ],
+    'Sept 1–3': [
+      { id:15, date:'Sept 1', title:'Core team final planning meeting', desc:'Walk through full Sept 4–5 hour-by-hour schedule with all dept heads.', tag:'Meeting', done:false, person:'Prabesh Prabhu', phone:'+977 9841 000 001' },
+      { id:16, date:'Sept 2', title:'Kitchen prep & panchamrita ready', desc:'Prepare panchamrita, pre-cook what can be made ahead of time.', tag:'Kitchen Seva', done:false, person:'Sunita Devi Dasi', phone:'+977 9841 000 002' },
+      { id:17, date:'Sept 2', title:'Donation desk & reception setup', desc:'Set up table, cash box, QR codes, signage, parking markers.', tag:'Logistics', done:false, person:'Ananta Das Prabhu', phone:'+977 9851 000 002' },
+      { id:18, date:'Sept 3', title:'Dress rehearsal — full run-through', desc:'Drama, kirtan, and arati sequence rehearsed end-to-end.', tag:'Drama', done:false, person:'Nitai Prabhu', phone:'+977 9831 000 004' },
+      { id:19, date:'Sept 3', title:'Deity dressing & decoration finalized', desc:'New outfit, garlands, jewellery placed and verified by Pujari.', tag:'Puja/Seva', done:false, person:'Head Pujari', phone:'[Assign]' },
+      { id:20, date:'Sept 3', title:'Security team final briefing', desc:'Confirm posts, timing, crowd-flow plan, emergency contacts.', tag:'Security', done:false, person:'Security Head', phone:'[Assign]' },
+    ],
+    'Sept 4 🎉': [
+      { id:21, date:'4:00 AM', title:'Mangala Arati — Day begins', desc:'Deity darshan opens. All volunteers at their posts by 3:30 AM.', tag:'Puja/Seva', done:false, person:'Head Pujari', phone:'[Assign]' },
+      { id:22, date:'10:00 AM', title:'Grand Abhishek Ceremony', desc:'Milk, honey, ghee abhishek for Sri Sri Radha Madhava — main event.', tag:'Puja/Seva', done:false, person:'Head Pujari', phone:'[Assign]' },
+      { id:23, date:'12:00 PM', title:'Kirtan marathon begins', desc:'Non-stop Hare Krishna kirtan through the day and into midnight.', tag:'Kirtan', done:false, person:'Hari Das Prabhu', phone:'+977 9841 000 003' },
+      { id:24, date:'4:00 PM', title:'Krishna Leela drama performance', desc:'Temple youth group presents Leela drama. Audience participation.', tag:'Drama', done:false, person:'Nitai Prabhu', phone:'+977 9831 000 004' },
+      { id:25, date:'11:30 PM', title:'Midnight Arati preparation', desc:'Deity dressed for midnight darshan. Conch blown 108 times at 12:00 AM.', tag:'Puja/Seva', done:false, person:'Head Pujari', phone:'[Assign]' },
+      { id:26, date:'12:00 AM', title:'Maha-prasad distribution', desc:'Full prasad distribution to all attending after midnight arati.', tag:'Kitchen Seva', done:false, person:'Sunita Devi Dasi', phone:'+977 9841 000 002' },
+    ],
+    'Sept 5 🌸': [
+      { id:27, date:'7:00 AM', title:'Nanda Mahotsav celebrations', desc:'Grand celebration of Krishna\'s birth — special arati and kirtan.', tag:'Puja/Seva', done:false, person:'Head Pujari', phone:'[Assign]' },
+      { id:28, date:'10:00 AM', title:'Maha-prasad feast for all', desc:'Grand feast for all devotees. Kitchen team lead by Prasad Coordinator.', tag:'Kitchen Seva', done:false, person:'Sunita Devi Dasi', phone:'+977 9841 000 002' },
+      { id:29, date:'2:00 PM', title:'Closing ceremony & volunteer appreciation', desc:'Thank all volunteers, present certificates, group photo.', tag:'Meeting', done:false, person:'Prabesh Prabhu', phone:'+977 9841 000 001' },
+    ],
+  },
+};
+
+// Tag → badge class
+const TAG_CLS = {
+  'Puja/Seva':'b-purple', 'Kitchen Seva':'b-amber', Kirtan:'b-blue',
+  Decoration:'b-teal', Drama:'b-pink', Meeting:'b-orange',
+  Logistics:'b-gray', Prasad:'b-amber', Security:'b-orange',
+};
+const AVATARS = ['#4338ca','#7c3aed','#be185d','#d97706','#059669','#0891b2','#dc2626'];
+const NOTICE_ICONS = { General:'📣', Urgent:'🚨', Donation:'💛', Kirtan:'🎶', Meeting:'📋' };
+
+// ============================================================
+// UTILS
+// ============================================================
+function showToast(msg, dur=3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function fmtNPR(n) { return 'NPR ' + Number(n).toLocaleString('en-IN'); }
+function totalDonations() { return DATA.donations.reduce((s,d)=>s+d.amount,0); }
+function donorTotals() {
+  const m={};
+  DATA.donations.forEach(d=>{m[d.name]=(m[d.name]||0)+d.amount;});
+  return Object.entries(m).map(([n,a])=>({name:n,amount:a})).sort((a,b)=>b.amount-a.amount);
+}
+function catRaised(name) { return DATA.donations.filter(d=>d.category===name).reduce((s,d)=>s+d.amount,0); }
+function totalSevasDone() {
+  let done=0,total=0;
+  Object.values(DATA.timeline).forEach(items=>items.forEach(i=>{total++;if(i.done)done++;}));
+  return {done,total};
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='overview')      renderOverview();
+  if(name==='timeline')      renderTimeline();
+  if(name==='donations')     renderDonations();
+  if(name==='budget')        renderBudget();
+  if(name==='volunteers')    renderVolunteers();
+  if(name==='checklist')     renderChecklist();
+  if(name==='announcements') renderAnnouncements();
+}
+
+// ============================================================
+// OVERVIEW
+// ============================================================
+function renderOverview() {
+  const today = new Date('2026-06-20'), event = new Date('2026-09-04');
+  const days = Math.ceil((event-today)/(864e5));
+  document.getElementById('kpi-days').textContent = days;
+  document.getElementById('kpi-don').textContent = fmtNPR(totalDonations());
+  document.getElementById('kpi-vol').textContent = DATA.volunteers.length;
+  const sv = totalSevasDone();
+  const done = DATA.tasks.filter(t=>t.done).length;
+  document.getElementById('kpi-tasks').textContent = done+'/'+DATA.tasks.length;
+
+  const pct = Math.round((totalDonations()/100000)*100);
+  document.getElementById('ov-bar').style.width = Math.min(100,pct)+'%';
+  document.getElementById('ov-pct').textContent = pct+'%';
+
+  document.getElementById('ov-cats').innerHTML = DATA.categories.map(c=>{
+    const r = catRaised(c.name);
+    const p = Math.min(100,Math.round((r/c.target)*100));
+    return `<div class="cat-row">
+      <div class="l"><span>${c.icon}</span>${c.name}</div>
+      <div class="r">${fmtNPR(c.target)}</div>
+    </div>
+    <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${p}%;background:${c.color};"></div></div>`;
+  }).join('');
+
+  document.getElementById('contacts-list').innerHTML = DATA.contacts.map((c,i)=>`
+    <div class="contact-item">
+      <h4>${c.role}</h4>
+      <div class="ci-row">
+        ${c.name
+          ? `<span class="ci-name">👤 ${c.name}</span>
+             ${c.phone?`<a href="tel:${c.phone}" class="ci-phone">📞 ${c.phone}</a>`:''}`
+          : `<span style="color:#94a3b8;font-size:12px;">[Unassigned]</span>
+             ${isAdmin()?`<button class="assign-btn" onclick="openAssignContact(${i})">+ Assign</button>`:''}`
+        }
+      </div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:2px;">${c.dept}</div>
+    </div>`).join('');
+}
+
+function openAssignContact(i) {
+  if(!isAdmin()){showToast('⚠ Admin access required');return;}
+  STATE.assigningContact = i;
+  document.getElementById('contact-role-lbl').textContent = 'Assigning: '+DATA.contacts[i].role+' ('+DATA.contacts[i].dept+')';
+  document.getElementById('cm-name').value = DATA.contacts[i].name||'';
+  document.getElementById('cm-phone').value = DATA.contacts[i].phone||'';
+  document.getElementById('cm-note').value = '';
+  openModal('contact-modal');
+}
+function submitContact() {
+  const i = STATE.assigningContact;
+  const name = document.getElementById('cm-name').value.trim();
+  const phone = document.getElementById('cm-phone').value.trim();
+  if(!name){showToast('⚠ Please enter a name');return;}
+  DATA.contacts[i].name = name;
+  DATA.contacts[i].phone = phone;
+  closeModal('contact-modal');
+  renderOverview();
+  showToast('✅ '+DATA.contacts[i].role+' assigned to '+name);
+}
+
+// ============================================================
+// TIMELINE — SEVA CHECKLIST
+// ============================================================
+function renderTimeline() {
+  const phases = Object.keys(DATA.timeline);
+  const el = document.getElementById('phase-tabs');
+  el.innerHTML = phases.map(p=>`
+    <button class="ptab${p===STATE.activePhase?' act':''}${p.includes('🎉')||p.includes('🌸')?' eday':''}"
+      onclick="selectPhase('${p}',this)">${p}</button>`).join('');
+  renderPhaseItems();
+}
+
+function selectPhase(p,btn) {
+  STATE.activePhase=p;
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  renderPhaseItems();
+}
+
+function renderPhaseItems() {
+  const items = DATA.timeline[STATE.activePhase]||[];
+  const done = items.filter(i=>i.done).length;
+  const pct = items.length ? Math.round((done/items.length)*100) : 0;
+  document.getElementById('phase-title').innerHTML =
+    `📋 ${STATE.activePhase} <span style="color:#94a3b8;font-weight:400;font-size:12px;">${done}/${items.length} done</span>`;
+  document.getElementById('phase-progress').textContent = pct+'% complete';
+  document.getElementById('phase-bar').style.width = pct+'%';
+  document.getElementById('add-seva-btn').style.display = isAdmin() ? '' : 'none';
+
+  const list = document.getElementById('seva-list');
+  if(!items.length){
+    list.innerHTML='<div class="empty-state">No seva tasks for this phase yet.</div>';
+    return;
+  }
+  list.innerHTML = items.map(item=>`
+    <div class="seva-item ${item.done?'done':''}" id="seva-${item.id}">
+      <input type="checkbox" class="seva-cb" ${item.done?'checked':''} 
+        ${!canEdit()?'disabled':''} onchange="toggleSeva('${STATE.activePhase}',${item.id})"/>
+      <div class="seva-body">
+        <div class="seva-title">${item.title}</div>
+        <div class="seva-desc">${item.desc}</div>
+        <div class="seva-meta">
+          <span class="seva-date-pill">${item.date}</span>
+          <span class="tag-badge ${TAG_CLS[item.tag]||'b-gray'}">${item.tag}</span>
+        </div>
+        <div class="seva-contact">
+          <span class="sc-name">👤 ${item.person||'Unassigned'}</span>
+          ${item.phone && item.phone!=='[Assign]'
+            ? `<a href="tel:${item.phone}" class="sc-phone" onclick="event.stopPropagation()">📞 ${item.phone}</a>`
+            : `<span class="sc-phone" style="color:#94a3b8;border-color:#e2e8f0;">${item.phone||'No phone'}</span>`}
+        </div>
+      </div>
+      ${isAdmin()?`<div class="seva-actions">
+        <button class="del-btn" onclick="deleteSeva('${STATE.activePhase}',${item.id})" title="Remove">×</button>
+      </div>`:''}
+    </div>`).join('');
+}
+
+function toggleSeva(phase,id) {
+  if(!canEdit()){showToast('⚠ Editor or Admin access required');renderPhaseItems();return;}
+  const item = DATA.timeline[phase].find(i=>i.id===id);
+  if(item) { item.done=!item.done; renderPhaseItems(); renderOverview(); }
+}
+
+function deleteSeva(phase,id) {
+  if(!isAdmin()){showToast('⚠ Admin access required');return;}
+  if(!confirm('Remove this seva task?')) return;
+  DATA.timeline[phase]=DATA.timeline[phase].filter(i=>i.id!==id);
+  renderPhaseItems();
+  showToast('🗑 Seva task removed');
+}
+
+function openSevaModal() {
+  if(!isAdmin()){showToast('⚠ Admin access required');return;}
+  ['sm-date','sm-title','sm-desc','sm-person','sm-phone'].forEach(id=>document.getElementById(id).value='');
+  openModal('seva-modal');
+}
+function submitSeva() {
+  const title = document.getElementById('sm-title').value.trim();
+  if(!title){showToast('⚠ Please enter a seva title');return;}
+  const item = {
+    id: Date.now(),
+    date: document.getElementById('sm-date').value.trim() || STATE.activePhase,
+    title,
+    desc: document.getElementById('sm-desc').value.trim(),
+    tag: document.getElementById('sm-tag').value,
+    done: false,
+    person: document.getElementById('sm-person').value.trim() || 'Unassigned',
+    phone: document.getElementById('sm-phone').value.trim() || '[Assign]',
+  };
+  if(!DATA.timeline[STATE.activePhase]) DATA.timeline[STATE.activePhase]=[];
+  DATA.timeline[STATE.activePhase].push(item);
+  closeModal('seva-modal');
+  renderPhaseItems();
+  showToast('✅ Seva task added to '+STATE.activePhase);
+}
+
+// ============================================================
+// DONATIONS
+// ============================================================
+function recordDonation() {
+  if(!canEdit()){showToast('⚠ Editor or Admin access required');return;}
+  const name = document.getElementById('d-name').value.trim();
+  const amt = parseFloat(document.getElementById('d-amt').value);
+  const cat = document.getElementById('d-cat').value;
+  const pay = document.getElementById('d-pay').value;
+  const note = document.getElementById('d-note').value.trim();
+  const phone = document.getElementById('d-phone').value.trim();
+  if(!name){showToast('⚠ Please enter donor name');return;}
+  if(!amt||amt<=0){showToast('⚠ Please enter a valid amount');return;}
+  if(!cat){showToast('⚠ Please select donation type');return;}
+  if(!pay){showToast('⚠ Please select payment mode');return;}
+  DATA.donations.push({
+    id:Date.now(), name, phone, amount:amt, category:cat, method:pay, note,
+    date:new Date().toLocaleDateString('en-CA')
+  });
+  ['d-name','d-phone','d-amt','d-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('d-cat').value='';
+  document.getElementById('d-pay').value='';
+  renderDonations();
+  renderOverview();
+  showToast('✅ Donation of NPR '+amt.toLocaleString()+' recorded! Hari bol! 🙏');
+  if(amt>=200000) setTimeout(()=>showToast('🏆 '+name+' qualifies for Mayapur Dham pilgrimage!',5000),3000);
+}
+
+function renderDonations() {
+  const total = totalDonations();
+  const donors = donorTotals();
+  const sumTotal = document.getElementById('sum-total');
+  const sumDonors = document.getElementById('sum-donors');
+  if(sumTotal) sumTotal.textContent = fmtNPR(total);
+  if(sumDonors) sumDonors.textContent = donors.length;
+
+  const byCat = document.getElementById('sum-by-cat');
+  if(byCat) {
+    if(!DATA.donations.length){byCat.innerHTML='<span style="color:#94a3b8;">No donations yet</span>';return;}
+    byCat.innerHTML = DATA.categories.map(c=>{
+      const r=catRaised(c.name); if(!r) return '';
+      const p=Math.min(100,Math.round((r/c.target)*100));
+      return `<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+        <span>${c.icon} ${c.name}</span><span style="font-weight:700;color:var(--indigo)">${fmtNPR(r)}</span>
+      </div>
+      <div style="height:3px;background:#eef2ff;border-radius:3px;margin-bottom:10px;">
+        <div style="height:100%;width:${p}%;background:${c.color};border-radius:3px;"></div>
+      </div>`;
+    }).join('');
+  }
+
+  const roll = document.getElementById('mayapur-roll');
+  if(roll) {
+    const elig = donors.filter(d=>d.amount>=200000);
+    roll.innerHTML = elig.length
+      ? elig.map((d,i)=>`<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">
+          <span>${['🥇','🥈','🥉'][i]||'✨'}</span>
+          <strong>${d.name}</strong>
+          <span style="margin-left:auto;font-weight:700;color:#92400e;">${fmtNPR(d.amount)}</span>
+          <span style="font-size:10px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:5px;padding:2px 7px;">✅ Eligible</span>
+        </div>`).join('')
+      : `No qualifying donor yet — be the first! 🙏`;
+  }
+
+  const reg = document.getElementById('donation-register');
+  if(!reg) return;
+  if(!DATA.donations.length){reg.innerHTML='<div class="register-empty">No donations recorded yet</div>';return;}
+  reg.innerHTML=`<div style="overflow-x:auto;">
+    <table class="dt">
+      <thead><tr><th>#</th><th>Donor</th><th>Category</th><th>Amount</th><th>Mode</th><th>Date</th>
+      ${isAdmin()?'<th></th>':''}</tr></thead>
+      <tbody>${DATA.donations.map((d,i)=>`
+        <tr>
+          <td>${i+1}</td>
+          <td><strong>${d.name}</strong>${d.phone?`<br><small style="color:#94a3b8;">${d.phone}</small>`:''}</td>
+          <td><span class="badge b-blue">${d.category}</span></td>
+          <td style="font-weight:700;color:var(--indigo)">${fmtNPR(d.amount)}</td>
+          <td>${d.method}</td>
+          <td>${d.date}</td>
+          ${isAdmin()?`<td><button class="btn btn-danger" style="font-size:11px;padding:3px 9px;" onclick="deleteDonation(${d.id})">✕</button></td>`:''}
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function deleteDonation(id){
+  if(!isAdmin()){showToast('⚠ Admin only');return;}
+  if(!confirm('Remove this donation?'))return;
+  DATA.donations=DATA.donations.filter(d=>d.id!==id);
+  renderDonations(); renderOverview();
+  showToast('🗑 Donation removed');
+}
+function exportDonations(){
+  if(!DATA.donations.length){showToast('No donations to export');return;}
+  const ws=XLSX.utils.json_to_sheet(DATA.donations);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Donations');
+  XLSX.writeFile(wb,'ISKCON_Donations_Janmashtami2026.xlsx');
+  showToast('✅ Exported to Excel!');
+}
+
+// ============================================================
+// BUDGET
+// ============================================================
+function renderBudget() {
+  const spent = DATA.expenses.reduce((s,e)=>s+e.amount,0);
+  const el=document.getElementById('budget-spent');
+  if(el) el.textContent=fmtNPR(spent);
+  renderBudgetAlloc();
+  renderExpenses();
+}
+
+function renderBudgetAlloc(){
+  const total=DATA.categories.reduce((s,c)=>s+c.target,0);
+  const ta=document.getElementById('budget-total-alloc');
+  if(ta) ta.textContent=fmtNPR(total);
+  const el=document.getElementById('budget-alloc');
+  if(!el)return;
+  el.innerHTML=DATA.categories.map((c,i)=>{
+    const pct=Math.round((c.target/100000)*100);
+    return `<div class="bal-row">
+      <div class="bal-lbl">${c.icon} ${c.name}</div>
+      <div class="bal-bar-wrap"><div class="bal-track"><div class="bal-fill" style="width:${Math.min(100,pct)}%;background:${c.color};"></div></div></div>
+      <div class="bal-pct">${pct}%</div>
+      <input class="bal-inp" type="number" value="${c.target}" ${isAdmin()?'':'disabled'}
+        onchange="updateCat(${i},this.value)" min="0"/>
+      ${isAdmin()?`<button class="del-x" onclick="deleteCat(${i})">×</button>`:'<span style="width:22px;"></span>'}
+    </div>`;
+  }).join('');
+}
+
+function updateCat(i,val){
+  if(!isAdmin()){showToast('⚠ Admin only');return;}
+  DATA.categories[i].target=parseFloat(val)||0;
+  renderBudgetAlloc();
+}
+function deleteCat(i){
+  if(!isAdmin()){showToast('⚠ Admin only');return;}
+  if(!confirm('Remove this budget category?'))return;
+  DATA.categories.splice(i,1);
+  renderBudgetAlloc();
+  showToast('Category removed');
+}
+function addBudgetCat(){
+  if(!isAdmin()){showToast('⚠ Admin only');return;}
+  const name=prompt('Category name:');
+  if(!name||!name.trim())return;
+  const amt=parseFloat(prompt('Allocated budget (NPR):'));
+  if(!amt||amt<=0)return;
+  DATA.categories.push({name:name.trim(),target:amt,icon:'📦',color:'#6366f1'});
+  renderBudgetAlloc();
+  showToast('✅ Category added!');
+}
+
+function renderExpenses(){
+  const total=DATA.expenses.reduce((s,e)=>s+e.amount,0);
+  const ts=document.getElementById('budget-total-spent');
+  if(ts) ts.textContent=fmtNPR(total);
+  const el=document.getElementById('expense-list');
+  if(!el)return;
+  if(!DATA.expenses.length){el.innerHTML='<div style="color:#94a3b8;font-size:13px;">No expenses added yet</div>';return;}
+  el.innerHTML=`<div style="overflow-x:auto;"><table class="dt" style="margin-top:8px;">
+    <thead><tr><th>#</th><th>Item</th><th>Category</th><th>Amount</th><th>Date</th>${isAdmin()?'<th></th>':''}</tr></thead>
+    <tbody>${DATA.expenses.map((e,i)=>`
+      <tr>
+        <td>${i+1}</td><td>${e.description}</td>
+        <td><span class="badge b-blue">${e.category}</span></td>
+        <td style="font-weight:700">${fmtNPR(e.amount)}</td>
+        <td>${e.date}</td>
+        ${isAdmin()?`<td><button class="btn btn-danger" style="font-size:11px;padding:3px 9px;" onclick="deleteExpense(${e.id})">✕</button></td>`:''}
+      </tr>`).join('')}
+    </tbody></table></div>`;
+}
+function addExpense(){
+  if(!isAdmin()){showToast('⚠ Admin only');return;}
+  const item=document.getElementById('exp-item').value.trim();
+  const amt=parseFloat(document.getElementById('exp-amt').value);
+  const cat=document.getElementById('exp-cat').value;
+  if(!item){showToast('⚠ Enter item name');return;}
+  if(!amt||amt<=0){showToast('⚠ Enter valid amount');return;}
+  if(!cat){showToast('⚠ Select category');return;}
+  DATA.expenses.push({id:Date.now(),description:item,amount:amt,category:cat,date:new Date().toLocaleDateString('en-CA')});
+  document.getElementById('exp-item').value='';
+  document.getElementById('exp-amt').value='';
+  document.getElementById('exp-cat').value='';
+  renderExpenses();
+  const el=document.getElementById('budget-spent');
+  if(el) el.textContent=fmtNPR(DATA.expenses.reduce((s,e)=>s+e.amount,0));
+  showToast('✅ Expense logged!');
+}
+function deleteExpense(id){
+  DATA.expenses=DATA.expenses.filter(e=>e.id!==id);
+  renderExpenses();
+  const el=document.getElementById('budget-spent');
+  if(el) el.textContent=fmtNPR(DATA.expenses.reduce((s,e)=>s+e.amount,0));
+}
+
+// ============================================================
+// VOLUNTEERS
+// ============================================================
+function renderVolunteers(){
+  const el=document.getElementById('volunteer-list');
+  const badge=document.getElementById('vol-count-badge');
+  if(badge) badge.textContent='('+DATA.volunteers.length+' devotees)';
+  if(!DATA.volunteers.length){
+    el.innerHTML='<div class="empty-state">No volunteers added yet. Add the first seva devotee!</div>';return;
+  }
+  el.innerHTML=DATA.volunteers.map((v,i)=>`
+    <div class="vol-card">
+      <div class="avatar" style="background:${AVATARS[i%AVATARS.length]}">${v.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div class="vol-name">${v.name}</div>
+        <div class="vol-sub">${v.dept} · ${v.init}${v.skills?' · '+v.skills:''}</div>
+        <div><a href="tel:${v.phone}" class="vol-phone">📞 ${v.phone}</a></div>
+      </div>
+      <span class="badge b-purple" style="flex-shrink:0;">${v.dept}</span>
+      ${isAdmin()?`<button class="btn btn-danger" style="margin-left:8px;" onclick="deleteVolunteer(${v.id})">✕</button>`:''}
+    </div>`).join('');
+  document.getElementById('kpi-vol').textContent=DATA.volunteers.length;
+}
+
+function openVolModal(){if(!isAdmin()){showToast('⚠ Admin only');return;}openModal('vol-modal');}
+function submitVolunteer(){
+  const name=document.getElementById('vm-name').value.trim();
+  const phone=document.getElementById('vm-phone').value.trim();
+  if(!name){showToast('⚠ Please enter name');return;}
+  if(!phone){showToast('⚠ Please enter phone number');return;}
+  DATA.volunteers.push({
+    id:Date.now(),name,phone,
+    dept:document.getElementById('vm-dept').value,
+    init:document.getElementById('vm-init').value,
+    skills:document.getElementById('vm-skills').value.trim()
+  });
+  closeModal('vol-modal');
+  renderVolunteers(); renderOverview();
+  showToast('✅ '+name+' added as volunteer! Hare Krishna 🙏');
+  ['vm-name','vm-phone','vm-skills'].forEach(id=>document.getElementById(id).value='');
+}
+function deleteVolunteer(id){
+  if(!isAdmin()){showToast('⚠ Admin only');return;}
+  if(!confirm('Remove this volunteer?'))return;
+  DATA.volunteers=DATA.volunteers.filter(v=>v.id!==id);
+  renderVolunteers(); renderOverview();
+  showToast('🗑 Volunteer removed');
+}
+function exportVolunteers(){
+  const rows=DATA.volunteers.map(v=>({Name:v.name,Phone:v.phone,Department:v.dept,Initiation:v.init,Skills:v.skills}));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Volunteers');
+  XLSX.writeFile(wb,'ISKCON_Volunteers_Janmashtami2026.xlsx');
+  showToast('✅ Volunteer list exported!');
+}
+
+// ============================================================
+// CHECKLIST
+// ============================================================
+function renderChecklist(){
+  const done=DATA.tasks.filter(t=>t.done).length;
+  const total=DATA.tasks.length;
+  const pct=total?Math.round((done/total)*100):0;
+  document.getElementById('ck-progress-txt').textContent=done+' / '+total+' tasks done';
+  document.getElementById('ck-bar').style.width=pct+'%';
+  document.getElementById('kpi-tasks').textContent=done+'/'+total;
+  const depts={};
+  DATA.tasks.forEach(t=>{if(!depts[t.dept])depts[t.dept]=[];depts[t.dept].push(t);});
+  const el=document.getElementById('checklist-by-dept');
+  el.innerHTML=Object.entries(depts).map(([dept,tasks])=>`
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-hd">
+        <h3>🏷 ${dept}</h3>
+        <span style="font-size:12px;color:#94a3b8;">${tasks.filter(t=>t.done).length}/${tasks.length} done</span>
+      </div>
+      ${tasks.map(t=>`
+        <div class="ck-item ${t.done?'done':''}" id="ck-${t.id}">
+          <input type="checkbox" ${t.done?'checked':''} ${!canEdit()?'disabled':''} onchange="toggleTask(${t.id})"/>
+          <div style="flex:1">
+            <div class="ck-title">${t.title}</div>
+            <div class="ck-sub">
+              ${t.assignedTo?`👤 ${t.assignedTo} · `:''}Due: ${t.due||'TBD'}
+            </div>
+          </div>
+          ${isAdmin()?`<button class="btn btn-danger" style="padding:2px 9px;font-size:11px;" onclick="deleteTask(${t.id})">✕</button>`:''}
+        </div>`).join('')}
+    </div>`).join('') || '<div class="empty-state">No tasks yet. Add the first seva task!</div>';
+}
+
+function toggleTask(id){
+  if(!canEdit()){showToast('⚠ Editor or Admin access required');renderChecklist();return;}
+  const t=DATA.tasks.find(t=>t.id===id);
+  if(t){t.done=!t.done;renderChecklist();renderOverview();}
+}
+function deleteTask(id){
+  if(!isAdmin()){showToast('⚠ Admin only');return;}
+  DATA.tasks=DATA.tasks.filter(t=>t.id!==id);
+  renderChecklist(); renderOverview();
+  showToast('🗑 Task removed');
+}
+function openTaskModal(){if(!isAdmin()){showToast('⚠ Admin only');return;}openModal('task-modal');}
+function submitTask(){
+  const title=document.getElementById('tm-title').value.trim();
+  if(!title){showToast('⚠ Please enter task title');return;}
+  DATA.tasks.push({
+    id:Date.now(),title,
+    dept:document.getElementById('tm-dept').value,
+    assignedTo:document.getElementById('tm-person').value.trim(),
+    due:document.getElementById('tm-due').value,
+    done:false
+  });
+  closeModal('task-modal');
+  renderChecklist(); renderOverview();
+  showToast('✅ Task added!');
+  ['tm-title','tm-person','tm-due'].forEach(id=>document.getElementById(id).value='');
+}
+function exportChecklist(){
+  const rows=DATA.tasks.map(t=>({Task:t.title,Department:t.dept,AssignedTo:t.assignedTo,Due:t.due,Status:t.done?'Done':'Pending'}));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Checklist');
+  XLSX.writeFile(wb,'ISKCON_Checklist_Janmashtami2026.xlsx');
+  showToast('✅ Checklist exported!');
+}
+
+// ============================================================
+// ANNOUNCEMENTS
+// ============================================================
+function renderAnnouncements(){
+  const pac=document.getElementById('post-announce-card');
+  if(pac) pac.style.display=isAdmin()?'':'none';
+  const el=document.getElementById('announcements-list');
+  if(!el)return;
+  el.innerHTML=!DATA.announcements.length
+    ?'<div class="empty-state">No announcements posted yet.</div>'
+    :DATA.announcements.slice().reverse().map(a=>`
+    <div class="notice-item">
+      <div class="ni-icon">${NOTICE_ICONS[a.tag]||'📣'}</div>
+      <div style="flex:1">
+        <div class="ni-title">${a.title}</div>
+        <div class="ni-body">${a.body}</div>
+        <div class="ni-date">Posted: ${a.date}</div>
+      </div>
+      ${isAdmin()?`<button class="ni-del" onclick="deleteAnnounce(${a.id})">×</button>`:''}`
+    ).join('');
+}
+function postAnnouncement(){
+  if(!isAdmin()){showToast('⚠ Admin only');return;}
+  const title=document.getElementById('an-title').value.trim();
+  const body=document.getElementById('an-body').value.trim();
+  if(!title){showToast('⚠ Please enter a title');return;}
+  DATA.announcements.push({
+    id:Date.now(),title,body,tag:'General',
+    date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})
+  });
+  document.getElementById('an-title').value='';
+  document.getElementById('an-body').value='';
+  renderAnnouncements();
+  showToast('📢 Announcement posted!');
+}
+function deleteAnnounce(id){
+  if(!isAdmin())return;
+  DATA.announcements=DATA.announcements.filter(a=>a.id!==id);
+  renderAnnouncements();
+  showToast('🗑 Removed');
+}
+function copyInvite(){
+  navigator.clipboard.writeText(document.getElementById('invite-text').textContent)
+    .then(()=>showToast('📋 Invite text copied!'));
+}
+
+// ============================================================
+// CLOSE ON OVERLAY CLICK
+// ============================================================
+document.querySelectorAll('.overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+});
+
+// ============================================================
+// INIT
+// ============================================================
+function init(){
+  renderOverview();
+  renderTimeline();
+  renderDonations();
+  renderBudget();
+  renderVolunteers();
+  renderChecklist();
+  renderAnnouncements();
+  // Apply admin-only visibility on load
+  setRole('Admin');
+}
+init();
+</script>
+</body>
+</html>
